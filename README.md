@@ -1,59 +1,39 @@
-# TestSsrApp
+# Demonstration that upgrading @angular/ssr and @angular/core does not fix Firebase App Hosting issue
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
+This project was generated with the following command:
+```
+npx @angular/cli@21 new test-ssr-app --ssr=true --style=css --ai-config=none
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+The installed dependencies are the latest available versions (v21 at least) of @angular/core and @angular/ssr:
+```
+@angular/core@21.2.16
+@angular/ssr@21.2.14
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+Setup the Firebase App Hosting configuration via:
+```
+firebase init apphosting --project=ghreactionsdev
 ```
 
-## Building
+Use the Firebase UI to connect to GitHub and point to the main branch, using "/" as the root directory.
 
-To build the project run:
-
-```bash
-ng build
+After visiting https://test-ssr-app--ghreactionsdev.us-east4.hosted.app you will see the following:
+```
+Header "host" with value "t-25955752---test-ssr-app-5wu2geqsna-uk.a.run.app" is not allowed.
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+In my opinion the stated workaround should be one of the two following options:
 
-## Running unit tests
+## Option 1
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+Add the following at the top of src/server.ts:
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+delete process.env['NG_TRUST_PROXY_HEADERS'];
+delete process.env['NG_ALLOWED_HOSTS']
 ```
+Then the environment variables no longer override the configuration the user attempted to provide
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Option 2
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Encourage users to override NG_TRUST_PROXY_HEADERS and NG_ALLOWED_HOSTS in their apphosting.yaml files
